@@ -80,18 +80,28 @@ initial =
 
 
 update : StateChange -> Model -> Model
-update _ state =
-  let
-    ( current, laps ) =
-      if state.isTiming then
-        ( state.current + 1, state.current :: state.laps )
-      else
-        ( state.current, state.laps )
-  in
-    { state
-      | laps = laps
-      , current = current
-    }
+update change state =
+  case change of
+    ButtonPress action ->
+      case action of
+        Start ->
+          { state | isTiming = True }
+
+        NoOp ->
+          state
+
+    TimeChange ->
+      let
+        ( current, laps ) =
+          if state.isTiming then
+            ( state.current + 1, state.current :: state.laps )
+          else
+            ( state.current, state.laps )
+      in
+        { state
+          | laps = laps
+          , current = current
+        }
 
 
 type StateChange
