@@ -5,6 +5,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Time exposing (Time)
 import Signal exposing (Signal)
+import String
 
 
 type Action
@@ -20,11 +21,9 @@ actions =
   Signal.mailbox NoOp
 
 
-ticks : Signal ()
-ticks =
-  Time.millisecond
-    |> Time.every
-    |> Signal.map (\_ -> ())
+millis : Signal Time
+millis =
+  Time.every Time.millisecond
 
 
 viewLine : String -> Html
@@ -36,6 +35,24 @@ viewLine lineText =
         ]
     ]
     [ text lineText ]
+
+
+millisToString : Time -> String
+millisToString millis =
+  let
+    minutes =
+      floor (millis / (60 * 1000))
+
+    seconds =
+      floor (millis / 1000)
+
+    centiseconds =
+      (floor millis `rem` 1000) // 10
+
+    pad n =
+      String.padLeft 2 '0' (toString n)
+  in
+    (pad minutes) ++ ":" ++ (pad seconds) ++ "," ++ (pad centiseconds)
 
 
 buttonRow : Bool -> Html
@@ -61,51 +78,85 @@ actionButton action =
 
 view : String -> Model -> Html
 view heading model =
-  div
-    []
-    [ viewLine heading
-    , viewLine ("Current: " ++ (model.current |> toString))
-    , buttonRow model.isTiming
-    , viewLine "Laps:"
-    , ul
-        []
-        (List.map toListItem model.laps)
-    ]
+  let
+    timeDiff =
+      model.currentTimestamp - model.startTimestamp
+
+    currentDuration =
+      if model.isTiming then
+        model.durationOnStop + timeDiff
+      else
+        model.durationOnStop
+  in
+    div
+      []
+      [ viewLine heading
+      , viewLine (millisToString currentDuration)
+      , buttonRow model.isTiming
+      , viewLine "Laps:"
+      , ul
+          []
+          (List.map toListItem model.laps)
+      ]
 
 
-toListItem : Int -> Html
+toListItem : Time -> Html
 toListItem num =
-  li [] [ text (toString num) ]
+  li [] [ text (millisToString num) ]
 
 
 type alias Model =
-  { current : Int
-  , laps : List Int
+  { startTimestamp : Time
+  , laps : List Time
   , isTiming : Bool
+  , currentTimestamp : Time
+  , durationOnStop : Time
+  , lapDurationOnStop : Time
+  , lastLapTimestamp : Time
   }
 
 
 initial : Model
 initial =
-  { current = 0
+  { startTimestamp = 0
   , laps = []
   , isTiming = False
+  , currentTimestamp = 0
+  , durationOnStop = 0
+  , lapDurationOnStop = 0
+  , lastLapTimestamp = 0
   }
 
 
 update : StateChange -> Model -> Model
 update change state =
   case change of
-    ButtonPress action ->
+    ButtonPress ( time, action ) ->
       case action of
         Start ->
-          { state | isTiming = True }
+          { state
+            | isTiming = True
+            , startTimestamp = time
+            , lastLapTimestamp = time
+          }
 
         Stop ->
-          { state | isTiming = False }
+          let
+            duration =
+              state.durationOnStop + time - state.startTimestamp
+          in
+            { state
+              | isTiming = False
+              , durationOnStop = duration
+              , lapDurationOnStop = duration - (total state.laps)
+            }
 
         Lap ->
-          { state | laps = state.current :: state.laps }
+          { state
+            | laps = (state.lapDurationOnStop + time - state.lastLapTimestamp) :: state.laps
+            , lastLapTimestamp = time
+            , lapDurationOnStop = 0
+          }
 
         Reset ->
           initial
@@ -113,25 +164,28 @@ update change state =
         NoOp ->
           state
 
-    TimeChange ->
-      case state.isTiming of
-        True ->
-          { state | current = state.current + 1 }
+    TimeChange time ->
+      if state.isTiming then
+        { state | currentTimestamp = time }
+      else
+        state
 
-        False ->
-          state
+
+total : List Time -> Time
+total laps =
+  List.foldl (+) 0 laps
 
 
 type StateChange
-  = TimeChange
-  | ButtonPress Action
+  = TimeChange Time
+  | ButtonPress ( Time, Action )
 
 
 inputSignal : Signal StateChange
 inputSignal =
   Signal.mergeMany
-    [ Signal.map (\_ -> TimeChange) ticks
-    , Signal.map ButtonPress actions.signal
+    [ Signal.map TimeChange millis
+    , Signal.map ButtonPress (Time.timestamp actions.signal)
     ]
 
 
