@@ -11,6 +11,7 @@ type Action
   = Start
   | Stop
   | Lap
+  | Reset
   | NoOp
 
 
@@ -47,6 +48,7 @@ buttonRow isTiming =
         ]
        else
         [ actionButton Start
+        , actionButton Reset
         ]
 
 
@@ -104,6 +106,9 @@ update change state =
 
         Lap ->
           { state | laps = state.current :: state.laps }
+
+        Reset ->
+          initial
 
         NoOp ->
           state
