@@ -10,6 +10,7 @@ import Signal exposing (Signal)
 type Action
   = Start
   | Stop
+  | Lap
   | NoOp
 
 
@@ -40,11 +41,13 @@ buttonRow : Bool -> Html
 buttonRow isTiming =
   div
     []
-    [ if isTiming then
-        actionButton Stop
-      else
-        actionButton Start
-    ]
+    <| if isTiming then
+        [ actionButton Stop
+        , actionButton Lap
+        ]
+       else
+        [ actionButton Start
+        ]
 
 
 actionButton : Action -> Html
@@ -99,21 +102,19 @@ update change state =
         Stop ->
           { state | isTiming = False }
 
+        Lap ->
+          { state | laps = state.current :: state.laps }
+
         NoOp ->
           state
 
     TimeChange ->
-      let
-        ( current, laps ) =
-          if state.isTiming then
-            ( state.current + 1, state.current :: state.laps )
-          else
-            ( state.current, state.laps )
-      in
-        { state
-          | laps = laps
-          , current = current
-        }
+      case state.isTiming of
+        True ->
+          { state | current = state.current + 1 }
+
+        False ->
+          state
 
 
 type StateChange
