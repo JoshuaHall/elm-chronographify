@@ -9,6 +9,7 @@ import Signal exposing (Signal)
 
 type Action
   = Start
+  | Stop
   | NoOp
 
 
@@ -19,7 +20,7 @@ actions =
 
 ticks : Signal ()
 ticks =
-  (Time.millisecond * 1000)
+  Time.millisecond
     |> Time.every
     |> Signal.map (\_ -> ())
 
@@ -35,27 +36,35 @@ viewLine lineText =
     [ text lineText ]
 
 
-buttonRow : Html
-buttonRow =
+buttonRow : Bool -> Html
+buttonRow isTiming =
   div
     []
-    [ button
-        [ onClick actions.address Start ]
-        [ text "Start" ]
+    [ if isTiming then
+        actionButton Stop
+      else
+        actionButton Start
     ]
 
 
-view : String -> List Int -> Int -> Html
-view prefix laps num2 =
+actionButton : Action -> Html
+actionButton action =
+  button
+    [ onClick actions.address action ]
+    [ text (toString action) ]
+
+
+view : String -> Model -> Html
+view heading model =
   div
     []
-    [ viewLine prefix
-    , viewLine ("Current: " ++ (num2 |> toString))
-    , buttonRow
+    [ viewLine heading
+    , viewLine ("Current: " ++ (model.current |> toString))
+    , buttonRow model.isTiming
     , viewLine "Laps:"
     , ul
         []
-        (List.map toListItem laps)
+        (List.map toListItem model.laps)
     ]
 
 
@@ -86,6 +95,9 @@ update change state =
       case action of
         Start ->
           { state | isTiming = True }
+
+        Stop ->
+          { state | isTiming = False }
 
         NoOp ->
           state
@@ -124,7 +136,7 @@ model =
 
 html : Model -> Html
 html model =
-  view "Chronographify" model.laps model.current
+  view "Chronographify" model
 
 
 main : Signal Html
