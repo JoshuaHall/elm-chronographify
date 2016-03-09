@@ -103,6 +103,24 @@ lapEntry =
     , ( "padding", "0.5rem 0" )
     , ( "border-bottom", "1px solid" ++ colors.lightGrey )
     , ( "font-size", "1.2rem" )
+    , ( "display", "flex" )
+    , ( "flex-direction", "row" )
+    ]
+
+
+lapNumber : Attribute
+lapNumber =
+  style
+    [ ( "width", "2em" )
+    , ( "color", colors.midGrey )
+    ]
+
+
+lapTime : Attribute
+lapTime =
+  style
+    [ ( "flex", "1" )
+    , ( "padding-right", "2em" )
     ]
 
 

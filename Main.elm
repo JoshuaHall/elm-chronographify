@@ -78,14 +78,24 @@ lapsList : List Time -> Html
 lapsList laps =
   ul
     [ Styles.laps ]
-    (List.map lapEntry laps)
+    (laps
+      |> List.reverse
+      |> List.indexedMap lapEntry
+      |> List.reverse
+    )
 
 
-lapEntry : Time -> Html
-lapEntry num =
-  li
-    [ Styles.lapEntry ]
-    [ text (millisToString num) ]
+lapEntry : Int -> Time -> Html
+lapEntry index entry =
+  let
+    lapNumber =
+      (toString (index + 1)) ++ "."
+  in
+    li
+      [ Styles.lapEntry ]
+      [ span [ Styles.lapNumber ] [ text lapNumber ]
+      , span [ Styles.lapTime ] [ text (millisToString entry) ]
+      ]
 
 
 timers : Model -> Html
@@ -154,35 +164,50 @@ initial =
   }
 
 
+handleStart : Time -> Model -> Model
+handleStart time state =
+  { state
+    | isTiming = True
+    , startTimestamp = time
+    , lastLapTimestamp = time
+  }
+
+
+handleStop : Time -> Model -> Model
+handleStop time state =
+  let
+    duration =
+      state.durationOnStop + time - state.startTimestamp
+  in
+    { state
+      | isTiming = False
+      , durationOnStop = duration
+      , lapDurationOnStop = duration - (total state.laps)
+    }
+
+
+handleLap : Time -> Model -> Model
+handleLap time state =
+  { state
+    | laps = (state.lapDurationOnStop + time - state.lastLapTimestamp) :: state.laps
+    , lastLapTimestamp = time
+    , lapDurationOnStop = 0
+  }
+
+
 update : StateChange -> Model -> Model
 update change state =
   case change of
     ButtonPress ( time, action ) ->
       case action of
         Start ->
-          { state
-            | isTiming = True
-            , startTimestamp = time
-            , lastLapTimestamp = time
-          }
+          handleStart time state
 
         Stop ->
-          let
-            duration =
-              state.durationOnStop + time - state.startTimestamp
-          in
-            { state
-              | isTiming = False
-              , durationOnStop = duration
-              , lapDurationOnStop = duration - (total state.laps)
-            }
+          handleStop time state
 
         Lap ->
-          { state
-            | laps = (state.lapDurationOnStop + time - state.lastLapTimestamp) :: state.laps
-            , lastLapTimestamp = time
-            , lapDurationOnStop = 0
-          }
+          handleLap time state
 
         Reset ->
           initial
