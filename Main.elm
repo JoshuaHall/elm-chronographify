@@ -76,6 +76,18 @@ actionButton action =
     [ text (toString action) ]
 
 
+lapsList : List Time -> Html
+lapsList laps =
+  ul
+    []
+    (List.map toListItem laps)
+
+
+toListItem : Time -> Html
+toListItem num =
+  li [] [ text (millisToString num) ]
+
+
 view : String -> Model -> Html
 view heading model =
   let
@@ -94,15 +106,8 @@ view heading model =
       , viewLine (millisToString currentDuration)
       , buttonRow model.isTiming
       , viewLine "Laps:"
-      , ul
-          []
-          (List.map toListItem model.laps)
+      , lapsList model.laps
       ]
-
-
-toListItem : Time -> Html
-toListItem num =
-  li [] [ text (millisToString num) ]
 
 
 type alias Model =
