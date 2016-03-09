@@ -88,8 +88,8 @@ toListItem num =
   li [] [ text (millisToString num) ]
 
 
-view : String -> Model -> Html
-view heading model =
+timers : Model -> Html
+timers model =
   let
     timeDiff =
       model.currentTimestamp - model.startTimestamp
@@ -99,15 +99,27 @@ view heading model =
         model.durationOnStop + timeDiff
       else
         model.durationOnStop
+
+    lapDuration =
+      currentDuration - total model.laps
   in
     div
       []
-      [ viewLine heading
-      , viewLine (millisToString currentDuration)
-      , buttonRow model.isTiming
-      , viewLine "Laps:"
-      , lapsList model.laps
+      [ viewLine ("Lap: " ++ (millisToString lapDuration))
+      , viewLine ("Total: " ++ (millisToString currentDuration))
       ]
+
+
+view : String -> Model -> Html
+view heading model =
+  div
+    []
+    [ viewLine heading
+    , timers model
+    , buttonRow model.isTiming
+    , viewLine "Laps:"
+    , lapsList model.laps
+    ]
 
 
 type alias Model =
