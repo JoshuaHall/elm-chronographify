@@ -1,11 +1,11 @@
 module Main (..) where
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Time exposing (Time)
 import Signal exposing (Signal)
 import String
+import Styles
 
 
 type Action
@@ -29,11 +29,7 @@ millis =
 viewLine : String -> Html
 viewLine lineText =
   div
-    [ style
-        [ ( "margin", "1em" )
-        , ( "width", "20rem" )
-        ]
-    ]
+    [ Styles.textBlock ]
     [ text lineText ]
 
 
@@ -58,7 +54,7 @@ millisToString millis =
 buttonRow : Bool -> Html
 buttonRow isTiming =
   div
-    []
+    [ Styles.buttonRow ]
     <| if isTiming then
         [ actionButton Stop
         , actionButton Lap
@@ -72,12 +68,28 @@ buttonRow isTiming =
 actionButton : Action -> Html
 actionButton action =
   button
-    [ onClick actions.address action ]
+    [ onClick actions.address action
+    , (Styles.actionButton (toString action))
+    ]
     [ text (toString action) ]
 
 
-view : String -> Model -> Html
-view heading model =
+lapsList : List Time -> Html
+lapsList laps =
+  ul
+    [ Styles.laps ]
+    (List.map lapEntry laps)
+
+
+lapEntry : Time -> Html
+lapEntry num =
+  li
+    [ Styles.lapEntry ]
+    [ text (millisToString num) ]
+
+
+timers : Model -> Html
+timers model =
   let
     timeDiff =
       model.currentTimestamp - model.startTimestamp
@@ -87,22 +99,36 @@ view heading model =
         model.durationOnStop + timeDiff
       else
         model.durationOnStop
+
+    lapDuration =
+      currentDuration - total model.laps
   in
     div
-      []
-      [ viewLine heading
-      , viewLine (millisToString currentDuration)
-      , buttonRow model.isTiming
-      , viewLine "Laps:"
-      , ul
-          []
-          (List.map toListItem model.laps)
+      [ Styles.timersWrapper ]
+      [ div
+          [ Styles.timers ]
+          [ div [ Styles.lapTimer ] [ text (millisToString lapDuration) ]
+          , div [ Styles.totalTimer ] [ text (millisToString currentDuration) ]
+          ]
       ]
 
 
-toListItem : Time -> Html
-toListItem num =
-  li [] [ text (millisToString num) ]
+header : String -> Html
+header heading =
+  div
+    [ Styles.header ]
+    [ text heading ]
+
+
+view : String -> Model -> Html
+view heading model =
+  div
+    []
+    [ header heading
+    , timers model
+    , buttonRow model.isTiming
+    , lapsList model.laps
+    ]
 
 
 type alias Model =
