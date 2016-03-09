@@ -1,11 +1,11 @@
 module Main (..) where
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Time exposing (Time)
 import Signal exposing (Signal)
 import String
+import Styles
 
 
 type Action
@@ -29,11 +29,7 @@ millis =
 viewLine : String -> Html
 viewLine lineText =
   div
-    [ style
-        [ ( "margin", "1em" )
-        , ( "width", "20rem" )
-        ]
-    ]
+    [ Styles.textBlock ]
     [ text lineText ]
 
 
@@ -58,7 +54,7 @@ millisToString millis =
 buttonRow : Bool -> Html
 buttonRow isTiming =
   div
-    []
+    [ Styles.buttonRow ]
     <| if isTiming then
         [ actionButton Stop
         , actionButton Lap
@@ -72,20 +68,24 @@ buttonRow isTiming =
 actionButton : Action -> Html
 actionButton action =
   button
-    [ onClick actions.address action ]
+    [ onClick actions.address action
+    , (Styles.actionButton (toString action))
+    ]
     [ text (toString action) ]
 
 
 lapsList : List Time -> Html
 lapsList laps =
   ul
-    []
-    (List.map toListItem laps)
+    [ Styles.laps ]
+    (List.map lapEntry laps)
 
 
-toListItem : Time -> Html
-toListItem num =
-  li [] [ text (millisToString num) ]
+lapEntry : Time -> Html
+lapEntry num =
+  li
+    [ Styles.lapEntry ]
+    [ text (millisToString num) ]
 
 
 timers : Model -> Html
@@ -104,20 +104,29 @@ timers model =
       currentDuration - total model.laps
   in
     div
-      []
-      [ viewLine ("Lap: " ++ (millisToString lapDuration))
-      , viewLine ("Total: " ++ (millisToString currentDuration))
+      [ Styles.timersWrapper ]
+      [ div
+          [ Styles.timers ]
+          [ div [ Styles.lapTimer ] [ text (millisToString lapDuration) ]
+          , div [ Styles.totalTimer ] [ text (millisToString currentDuration) ]
+          ]
       ]
+
+
+header : String -> Html
+header heading =
+  div
+    [ Styles.header ]
+    [ text heading ]
 
 
 view : String -> Model -> Html
 view heading model =
   div
     []
-    [ viewLine heading
+    [ header heading
     , timers model
     , buttonRow model.isTiming
-    , viewLine "Laps:"
     , lapsList model.laps
     ]
 
