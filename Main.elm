@@ -23,7 +23,7 @@ actions =
 
 millis : Signal Time
 millis =
-  Time.every Time.millisecond
+  Time.every (Time.millisecond * 16)
 
 
 viewLine : String -> Html
