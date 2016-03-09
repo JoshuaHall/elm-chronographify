@@ -40,7 +40,7 @@ millisToString millis =
       floor (millis / (60 * 1000))
 
     seconds =
-      floor (millis / 1000)
+      floor (millis / 1000) `rem` 60
 
     centiseconds =
       (floor millis `rem` 1000) // 10
