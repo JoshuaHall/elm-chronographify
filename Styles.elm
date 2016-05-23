@@ -1,4 +1,4 @@
-module Styles (..) where
+module Styles exposing (..)
 
 import Html exposing (Attribute)
 import Html.Attributes exposing (..)
@@ -44,7 +44,7 @@ buttonBackground actionName =
       ""
 
 
-actionButton : String -> Attribute
+actionButton : String -> Attribute a
 actionButton actionName =
   style
     [ ( "flex-grow", "1" )
@@ -57,7 +57,7 @@ actionButton actionName =
     ]
 
 
-buttonRow : Attribute
+buttonRow : Attribute a
 buttonRow =
   style
     [ ( "display", "flex" )
@@ -65,7 +65,7 @@ buttonRow =
     ]
 
 
-header : Attribute
+header : Attribute a
 header =
   style
     [ ( "text-transform", "uppercase" )
@@ -78,7 +78,7 @@ header =
     ]
 
 
-laps : Attribute
+laps : Attribute a
 laps =
   style
     [ ( "padding", "0" )
@@ -87,7 +87,7 @@ laps =
     ]
 
 
-lapTimer : Attribute
+lapTimer : Attribute a
 lapTimer =
   style
     [ ( "font-size", "1.2rem" )
@@ -96,7 +96,7 @@ lapTimer =
     ]
 
 
-lapEntry : Attribute
+lapEntry : Attribute a
 lapEntry =
   style
     [ ( "list-style", "none" )
@@ -108,7 +108,7 @@ lapEntry =
     ]
 
 
-lapNumber : Attribute
+lapNumber : Attribute a
 lapNumber =
   style
     [ ( "width", "2em" )
@@ -116,7 +116,7 @@ lapNumber =
     ]
 
 
-lapTime : Attribute
+lapTime : Attribute a
 lapTime =
   style
     [ ( "flex", "1" )
@@ -124,7 +124,7 @@ lapTime =
     ]
 
 
-textBlock : Attribute
+textBlock : Attribute a
 textBlock =
   style
     [ ( "margin", "1rem" )
@@ -132,7 +132,7 @@ textBlock =
     ]
 
 
-timers : Attribute
+timers : Attribute a
 timers =
   style
     [ ( "padding", "1rem 0" )
@@ -140,13 +140,13 @@ timers =
     ]
 
 
-totalTimer : Attribute
+totalTimer : Attribute a
 totalTimer =
   style
     [ ( "font-size", "2rem" )
     ]
 
 
-timersWrapper : Attribute
+timersWrapper : Attribute a
 timersWrapper =
   style [ ( "text-align", "center" ) ]
