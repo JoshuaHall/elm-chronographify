@@ -2,8 +2,9 @@
 
 Incredible time-keeping device written in Elm 0.17.
 
-[![](chrono.gif)
-Try it now!](https://ohanhi.github.io/elm-chronographify)
+[![](chrono.gif)](https://ohanhi.github.io/elm-chronographify)
+
+[Try it now!](https://ohanhi.github.io/elm-chronographify)
 
 
 Basically all of the code is in `Main.elm`.
