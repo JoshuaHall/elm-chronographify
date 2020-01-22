@@ -155,7 +155,7 @@ handleStop time model =
     { model
         | isTiming = False
         , durationOnStop = Time.millisToPosix duration
-        , lapDurationOnStop = Time.millisToPosix (duration - (total <| List.map Time.posixToMillis model.laps))
+        , lapDurationOnStop = Time.millisToPosix (duration - total model.laps)
     }
 
 
@@ -168,9 +168,11 @@ handleLap time model =
     }
 
 
-total : List Int -> Int
+total : List Posix -> Int
 total laps =
-    List.foldl (+) 0 laps
+    laps
+        |> List.map Time.posixToMillis
+        |> List.foldl (+) 0
 
 
 millisToString : Time.Zone -> Posix -> String
@@ -219,15 +221,18 @@ timers model =
         timeDiff =
             Time.posixToMillis model.currentTimestamp - Time.posixToMillis model.startTimestamp
 
+        durationOnStop =
+            Time.posixToMillis model.durationOnStop
+
         currentDuration =
             if model.isTiming then
-                Time.posixToMillis model.durationOnStop + timeDiff
+                durationOnStop + timeDiff
 
             else
-                Time.posixToMillis model.durationOnStop
+                durationOnStop
 
         lapDuration =
-            currentDuration - (List.map Time.posixToMillis model.laps |> total)
+            currentDuration - total model.laps
     in
     div
         timersWrapperStyles
