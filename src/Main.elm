@@ -5,7 +5,7 @@ import Html exposing (Attribute, Html, button, div, li, span, text, ul)
 import Html.Attributes exposing (style)
 import Html.Events exposing (onClick)
 import Task
-import Time exposing (Posix)
+import Time exposing (Posix, Zone)
 import Time.Extra as TimeExtra exposing (Interval(..))
 
 
@@ -33,7 +33,7 @@ subscriptions _ =
 
 
 type alias Model =
-    { zone : Time.Zone
+    { zone : Zone
     , startTimestamp : Posix
     , laps : List Posix
     , isTiming : Bool
@@ -46,18 +46,22 @@ type alias Model =
 
 initialModel : Model
 initialModel =
+    let
+        initialTime =
+            Time.millisToPosix 0
+    in
     { zone = Time.utc
-    , startTimestamp = Time.millisToPosix 0
+    , startTimestamp = initialTime
     , laps = []
     , isTiming = False
-    , currentTimestamp = Time.millisToPosix 0
-    , durationOnStop = Time.millisToPosix 0
-    , lapDurationOnStop = Time.millisToPosix 0
-    , lastLapTimestamp = Time.millisToPosix 0
+    , currentTimestamp = initialTime
+    , durationOnStop = initialTime
+    , lapDurationOnStop = initialTime
+    , lastLapTimestamp = initialTime
     }
 
 
-init : ( Model, Cmd a )
+init : ( Model, Cmd msg )
 init =
     ( initialModel
     , Cmd.none
@@ -161,8 +165,18 @@ handleStop time model =
 
 handleLap : Posix -> Model -> Model
 handleLap time model =
+    let
+        lapDurationOnStop =
+            Time.posixToMillis model.lapDurationOnStop
+
+        timeAsMillis =
+            Time.posixToMillis time
+
+        lastLapTimestamp =
+            Time.posixToMillis model.lastLapTimestamp
+    in
     { model
-        | laps = Time.millisToPosix (Time.posixToMillis model.lapDurationOnStop + Time.posixToMillis time - Time.posixToMillis model.lastLapTimestamp) :: model.laps
+        | laps = Time.millisToPosix (lapDurationOnStop + timeAsMillis - lastLapTimestamp) :: model.laps
         , lastLapTimestamp = time
         , lapDurationOnStop = Time.millisToPosix 0
     }
@@ -175,8 +189,8 @@ total laps =
         |> List.foldl (+) 0
 
 
-millisToString : Time.Zone -> Posix -> String
-millisToString zone posix =
+posixToString : Zone -> Posix -> String
+posixToString zone posix =
     let
         posixParts =
             TimeExtra.posixToParts zone posix
@@ -215,7 +229,7 @@ view model =
         ]
 
 
-timers : Model -> Html Msg
+timers : Model -> Html msg
 timers model =
     let
         timeDiff =
@@ -233,6 +247,12 @@ timers model =
 
         lapDuration =
             currentDuration - total model.laps
+
+        durationToText duration =
+            duration
+                |> Time.millisToPosix
+                |> posixToString model.zone
+                |> text
     in
     div
         timersWrapperStyles
@@ -240,10 +260,10 @@ timers model =
             timersStyles
             [ div
                 lapTimerStyles
-                [ text <| millisToString model.zone <| Time.millisToPosix lapDuration ]
+                [ durationToText lapDuration ]
             , div
                 totalTimerStyles
-                [ text <| millisToString model.zone <| Time.millisToPosix currentDuration ]
+                [ durationToText currentDuration ]
             ]
         ]
 
@@ -264,7 +284,7 @@ buttonRow isTiming =
             ]
 
 
-lapsList : Time.Zone -> List Posix -> Html Msg
+lapsList : Zone -> List Posix -> Html msg
 lapsList zone laps =
     ul
         lapsStyles
@@ -282,7 +302,7 @@ actionButton action =
         [ text <| userActionToString action ]
 
 
-lapEntry : Time.Zone -> Int -> Posix -> Html Msg
+lapEntry : Zone -> Int -> Posix -> Html msg
 lapEntry zone index entry =
     let
         lapNumber =
@@ -295,7 +315,7 @@ lapEntry zone index entry =
             [ text lapNumber ]
         , span
             lapTimeStyles
-            [ text <| millisToString zone entry ]
+            [ text <| posixToString zone entry ]
         ]
 
 
