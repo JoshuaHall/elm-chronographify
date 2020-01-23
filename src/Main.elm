@@ -2,7 +2,7 @@ module Main exposing (main)
 
 import Browser
 import Html exposing (Attribute, Html, button, div, li, span, text, ul)
-import Html.Attributes exposing (style)
+import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import Task
 import Time exposing (Posix, Zone)
@@ -221,7 +221,7 @@ view model =
     div
         []
         [ div
-            headerStyles
+            [ class "header" ]
             [ text "Chronographify" ]
         , timers model
         , buttonRow model.isTiming
@@ -255,14 +255,14 @@ timers model =
                 |> text
     in
     div
-        timersWrapperStyles
+        [ class "timersWrapper" ]
         [ div
-            timersStyles
+            [ class "timers" ]
             [ div
-                lapTimerStyles
+                [ class "lapTimer" ]
                 [ durationToText lapDuration ]
             , div
-                totalTimerStyles
+                [ class "totalTimer" ]
                 [ durationToText currentDuration ]
             ]
         ]
@@ -271,7 +271,7 @@ timers model =
 buttonRow : Bool -> Html Msg
 buttonRow isTiming =
     div
-        buttonRowStyles
+        [ class "buttonRow" ]
     <|
         if isTiming then
             [ actionButton Stop
@@ -287,7 +287,7 @@ buttonRow isTiming =
 lapsList : Zone -> List Posix -> Html msg
 lapsList zone laps =
     ul
-        lapsStyles
+        [ class "laps" ]
         (laps
             |> List.reverse
             |> List.indexedMap (lapEntry zone)
@@ -298,7 +298,9 @@ lapsList zone laps =
 actionButton : UserAction -> Html Msg
 actionButton action =
     button
-        ((onClick <| ButtonPress action) :: actionButtonStyles action)
+        [ onClick <| ButtonPress action
+        , actionButtonClasses action
+        ]
         [ text <| userActionToString action ]
 
 
@@ -309,156 +311,31 @@ lapEntry zone index entry =
             String.fromInt (index + 1) ++ "."
     in
     li
-        lapEntryStyles
+        [ class "lapEntry" ]
         [ span
-            lapNumberStyles
+            [ class "lapNumber" ]
             [ text lapNumber ]
         , span
-            lapTimeStyles
+            [ class "lapTime" ]
             [ text <| posixToString zone entry ]
         ]
 
 
+actionButtonClasses : UserAction -> Attribute msg
+actionButtonClasses action =
+    class
+        ("button "
+            ++ (case action of
+                    Start ->
+                        "startButton"
 
--- COLORS
+                    Stop ->
+                        "stopButton"
 
+                    Lap ->
+                        "resetAndLapButton"
 
-offBlack : String
-offBlack =
-    "#333"
-
-
-offWhite : String
-offWhite =
-    "#F5F5F5"
-
-
-green : String
-green =
-    "#5CEC3D"
-
-
-red : String
-red =
-    "#EC483D"
-
-
-lightGrey : String
-lightGrey =
-    "#CCC"
-
-
-midGrey : String
-midGrey =
-    "#777"
-
-
-
--- STYLES
-
-
-buttonBackground : UserAction -> String
-buttonBackground action =
-    case action of
-        Start ->
-            green
-
-        Stop ->
-            red
-
-        Lap ->
-            lightGrey
-
-        Reset ->
-            lightGrey
-
-
-actionButtonStyles : UserAction -> List (Attribute msg)
-actionButtonStyles action =
-    [ style "flex-grow" "1"
-    , style "min-width" "50%"
-    , style "font-size" "1.2rem"
-    , style "border" "none"
-    , style "outline" "none"
-    , style "padding" "0.4rem"
-    , style "background" <| buttonBackground action
-    ]
-
-
-buttonRowStyles : List (Attribute msg)
-buttonRowStyles =
-    [ style "display" "flex"
-    , style "flex-direction" "row"
-    ]
-
-
-headerStyles : List (Attribute msg)
-headerStyles =
-    [ style "text-transform" "uppercase"
-    , style "background" offBlack
-    , style "padding" "0.5em 1rem"
-    , style "font-size" "1.2rem"
-    , style "color" "#f5f5f5"
-    , style "letter-spacing" "0.4rem"
-    , style "text-align" "center"
-    ]
-
-
-lapsStyles : List (Attribute msg)
-lapsStyles =
-    [ style "padding" "0"
-    , style "text-align" "center"
-    , style "background" offWhite
-    ]
-
-
-lapTimerStyles : List (Attribute msg)
-lapTimerStyles =
-    [ style "font-size" "1.2rem"
-    , style "text-align" "right"
-    , style "color" midGrey
-    ]
-
-
-lapEntryStyles : List (Attribute msg)
-lapEntryStyles =
-    [ style "list-style" "none"
-    , style "padding" "0.5rem 0"
-    , style "border-bottom" <| "1px solid" ++ lightGrey
-    , style "font-size" "1.2rem"
-    , style "display" "flex"
-    , style "flex-direction" "row"
-    ]
-
-
-lapNumberStyles : List (Attribute msg)
-lapNumberStyles =
-    [ style "width" "2em"
-    , style "color" midGrey
-    ]
-
-
-lapTimeStyles : List (Attribute msg)
-lapTimeStyles =
-    [ style "flex" "1"
-    , style "padding-right" "2em"
-    ]
-
-
-timersStyles : List (Attribute msg)
-timersStyles =
-    [ style "padding" "1rem 0"
-    , style "display" "inline-block"
-    ]
-
-
-totalTimerStyles : List (Attribute msg)
-totalTimerStyles =
-    [ style "font-size" "2rem"
-    ]
-
-
-timersWrapperStyles : List (Attribute msg)
-timersWrapperStyles =
-    [ style "text-align" "center"
-    ]
+                    Reset ->
+                        "resetAndLapButton"
+               )
+        )
