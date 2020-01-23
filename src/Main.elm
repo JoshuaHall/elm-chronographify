@@ -4,6 +4,7 @@ import Browser
 import Html exposing (Attribute, Html, button, div, li, span, text, ul)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
+import Html.Lazy exposing (lazy, lazy2)
 import Task
 import Time exposing (Posix, Zone)
 import Time.Extra as TimeExtra exposing (Interval(..))
@@ -17,15 +18,6 @@ main =
         , update = update
         , view = view
         }
-
-
-
--- SUBSCRIPTIONS
-
-
-subscriptions : Model -> Sub Msg
-subscriptions _ =
-    Time.every 16 TimeChange
 
 
 
@@ -67,6 +59,22 @@ init =
     ( initialModel
     , Task.perform TimeZoneChange Time.here
     )
+
+
+
+-- SUBSCRIPTIONS
+
+
+subscriptions : Model -> Sub Msg
+subscriptions _ =
+    let
+        updatesPerSecond =
+            60
+
+        milliseconds =
+            1000
+    in
+    Time.every (milliseconds / updatesPerSecond) TimeChange
 
 
 
@@ -230,9 +238,9 @@ view model =
         [ div
             [ class "header" ]
             [ text "Chronographify" ]
-        , timers model
-        , buttonRow model.isTiming
-        , lapsList model.zone model.laps
+        , lazy timers model
+        , lazy buttonRow model.isTiming
+        , lazy2 lapsList model.zone model.laps
         ]
 
 
