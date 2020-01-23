@@ -61,10 +61,10 @@ initialModel =
     }
 
 
-init : ( Model, Cmd msg )
+init : ( Model, Cmd Msg )
 init =
     ( initialModel
-    , Cmd.none
+    , Task.perform TimeZoneChange Time.here
     )
 
 
@@ -73,9 +73,10 @@ init =
 
 
 type Msg
-    = ReceiveTimestamp UserAction Posix
+    = ButtonPress UserAction
+    | ReceiveTimestamp UserAction Posix
     | TimeChange Posix
-    | ButtonPress UserAction
+    | TimeZoneChange Zone
 
 
 type UserAction
@@ -139,6 +140,11 @@ update change model =
                 ( model
                 , Cmd.none
                 )
+
+        TimeZoneChange zone ->
+            ( { model | zone = zone }
+            , Cmd.none
+            )
 
 
 handleStart : Posix -> Model -> Model
