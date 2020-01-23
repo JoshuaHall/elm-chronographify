@@ -44,12 +44,13 @@ type alias Model =
     }
 
 
+initialTime : Posix
+initialTime =
+    Time.millisToPosix 0
+
+
 initialModel : Model
 initialModel =
-    let
-        initialTime =
-            Time.millisToPosix 0
-    in
     { zone = Time.utc
     , startTimestamp = initialTime
     , laps = []
@@ -184,7 +185,7 @@ handleLap time model =
     { model
         | laps = Time.millisToPosix (lapDurationOnStop + timeAsMillis - lastLapTimestamp) :: model.laps
         , lastLapTimestamp = time
-        , lapDurationOnStop = Time.millisToPosix 0
+        , lapDurationOnStop = initialTime
     }
 
 
@@ -329,19 +330,19 @@ lapEntry zone index entry =
 
 actionButtonClasses : UserAction -> Attribute msg
 actionButtonClasses action =
-    class
-        ("button "
-            ++ (case action of
-                    Start ->
-                        "startButton"
+    let
+        buttonColorClass =
+            case action of
+                Start ->
+                    "startButton"
 
-                    Stop ->
-                        "stopButton"
+                Stop ->
+                    "stopButton"
 
-                    Lap ->
-                        "resetAndLapButton"
+                Lap ->
+                    "resetAndLapButton"
 
-                    Reset ->
-                        "resetAndLapButton"
-               )
-        )
+                Reset ->
+                    "resetAndLapButton"
+    in
+    class ("button " ++ buttonColorClass)
