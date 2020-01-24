@@ -4,6 +4,7 @@ import Browser
 import Html exposing (Attribute, Html, button, div, li, span, text, ul)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
+import Html.Keyed
 import Html.Lazy exposing (lazy, lazy2)
 import Task
 import Time exposing (Posix, Zone)
@@ -301,12 +302,10 @@ buttonRow isTiming =
 
 lapsList : Zone -> List Posix -> Html msg
 lapsList zone laps =
-    ul
+    Html.Keyed.ul
         [ class "laps" ]
         (laps
-            |> List.reverse
-            |> List.indexedMap (lapEntry zone)
-            |> List.reverse
+            |> reversedIndexesIndexedMap (lapEntry zone)
         )
 
 
@@ -319,13 +318,14 @@ actionButton action =
         [ text <| userActionToString action ]
 
 
-lapEntry : Zone -> Int -> Posix -> Html msg
+lapEntry : Zone -> Int -> Posix -> ( String, Html msg )
 lapEntry zone index entry =
     let
         lapNumber =
             String.fromInt (index + 1) ++ "."
     in
-    li
+    ( lapNumber
+    , li
         [ class "lapEntry" ]
         [ span
             [ class "lapNumber" ]
@@ -334,6 +334,7 @@ lapEntry zone index entry =
             [ class "lapTime" ]
             [ text <| posixToString zone entry ]
         ]
+    )
 
 
 actionButtonClasses : UserAction -> Attribute msg
@@ -354,3 +355,14 @@ actionButtonClasses action =
                     "resetAndLapButton"
     in
     class ("button " ++ buttonColorClass)
+
+
+
+-- HELPERS
+
+
+{-| The same as `List.indexedMap`, except that the indexes are reversed.
+-}
+reversedIndexesIndexedMap : (Int -> a -> b) -> List a -> List b
+reversedIndexesIndexedMap f xs =
+    List.map2 f (List.reverse (List.range 0 (List.length xs - 1))) xs
