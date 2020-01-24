@@ -304,9 +304,7 @@ lapsList : Zone -> List Posix -> Html msg
 lapsList zone laps =
     Html.Keyed.ul
         [ class "laps" ]
-        (laps
-            |> reversedIndexesIndexedMap (lapEntry zone)
-        )
+        (laps |> reversedIndexesIndexedMap (lapEntry zone))
 
 
 actionButton : UserAction -> Html Msg
@@ -365,4 +363,18 @@ actionButtonClasses action =
 -}
 reversedIndexesIndexedMap : (Int -> a -> b) -> List a -> List b
 reversedIndexesIndexedMap f xs =
-    List.map2 f (List.reverse (List.range 0 (List.length xs - 1))) xs
+    List.map2 f (reverseRange (List.length xs - 1) 0) xs
+
+
+reverseRange : Int -> Int -> List Int
+reverseRange hi lo =
+    reverseRangeHelp hi lo []
+
+
+reverseRangeHelp : Int -> Int -> List Int -> List Int
+reverseRangeHelp hi lo list =
+    if hi >= lo then
+        reverseRangeHelp hi (lo + 1) (lo :: list)
+
+    else
+        list
