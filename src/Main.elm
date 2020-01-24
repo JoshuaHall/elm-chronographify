@@ -1,4 +1,4 @@
-module Main exposing (main)
+module Main exposing (main, reverseRange)
 
 import Browser
 import Html exposing (Attribute, Html, button, div, li, span, text, ul)
