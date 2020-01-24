@@ -2,7 +2,20 @@ module Benchmarks exposing (main)
 
 import Benchmark exposing (Benchmark, describe)
 import Benchmark.Runner exposing (BenchmarkProgram, program)
-import Main exposing (reverseRange)
+
+
+reverseRange : Int -> Int -> List Int
+reverseRange hi lo =
+    reverseRangeHelp hi lo []
+
+
+reverseRangeHelp : Int -> Int -> List Int -> List Int
+reverseRangeHelp hi lo list =
+    if hi >= lo then
+        reverseRangeHelp hi (lo + 1) (lo :: list)
+
+    else
+        list
 
 
 simpleReverseRange : Int -> Int -> List Int

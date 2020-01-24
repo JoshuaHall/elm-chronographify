@@ -304,7 +304,7 @@ lapsList : Zone -> List Posix -> Html msg
 lapsList zone laps =
     Html.Keyed.ul
         [ class "laps" ]
-        (laps |> reversedIndexesIndexedMap (lapEntry zone))
+        (reversedIndexesIndexedMap (lapEntry zone) laps)
 
 
 actionButton : UserAction -> Html Msg
