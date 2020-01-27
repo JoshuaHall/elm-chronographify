@@ -40,19 +40,19 @@ reverseRangeBenchmark =
     in
     describe "Reverse Range Benchmarks"
         [ Benchmark.compare "reverse range implementations, low range"
-            "reverseRange"
+            "reverseRange hi lo"
             (\_ -> reverseRange lowHi lo)
-            "simpleReverseRangeBenchmark"
+            "List.reverse (List.range lo hi)"
             (\_ -> simpleReverseRange lowHi lo)
         , Benchmark.compare "reverse range implementations, medium range"
-            "reverseRange"
+            "reverseRange hi lo"
             (\_ -> reverseRange mediumHi lo)
-            "simpleReverseRangeBenchmark"
+            "List.reverse (List.range lo hi)"
             (\_ -> simpleReverseRange mediumHi lo)
         , Benchmark.compare "reverse range implementations, high range"
-            "reverseRange"
+            "reverseRange hi lo"
             (\_ -> reverseRange highHi lo)
-            "simpleReverseRangeBenchmark"
+            "List.reverse (List.range lo hi)"
             (\_ -> simpleReverseRange highHi lo)
         ]
 
