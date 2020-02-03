@@ -1,4 +1,5 @@
 elm-stuff/
 /elm.js
+/elm.min.js
 /.vscode/
 benchmarks.html

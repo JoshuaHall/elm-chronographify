@@ -304,7 +304,7 @@ lapsList : Zone -> List Posix -> Html msg
 lapsList zone laps =
     Html.Keyed.ul
         [ class "laps" ]
-        (reversedIndexesIndexedMap (lapEntry zone) laps)
+        (reverseIncrementedIndexedMap (lapEntry zone) laps)
 
 
 actionButton : UserAction -> Html Msg
@@ -320,7 +320,7 @@ lapEntry : Zone -> Int -> Posix -> ( String, Html msg )
 lapEntry zone index entry =
     let
         lapNumber =
-            String.fromInt (index + 1) ++ "."
+            String.fromInt index ++ "."
     in
     ( lapNumber
     , li
@@ -359,11 +359,11 @@ actionButtonClasses action =
 -- HELPERS
 
 
-{-| The same as `List.indexedMap`, except that the indexes are reversed.
+{-| The same as `List.indexedMap`, except that the indexes are reversed and incremented by one.
 -}
-reversedIndexesIndexedMap : (Int -> a -> b) -> List a -> List b
-reversedIndexesIndexedMap f xs =
-    List.map2 f (reverseRange (List.length xs - 1) 0) xs
+reverseIncrementedIndexedMap : (Int -> a -> b) -> List a -> List b
+reverseIncrementedIndexedMap f xs =
+    List.map2 f (reverseRange (List.length xs) 1) xs
 
 
 reverseRange : Int -> Int -> List Int
