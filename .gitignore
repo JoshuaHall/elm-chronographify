@@ -4,6 +4,10 @@ elm-stuff/
 /.vscode/
 benchmarks.html
 
+css/*.min.css
+
+# JS/NODE
+
 # Logs
 logs
 *.log
