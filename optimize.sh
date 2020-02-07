@@ -13,6 +13,8 @@ echo "Compiled size:$(cat $js | wc -c) bytes  ($js)"
 echo "Minified size:$(cat $minJs | wc -c) bytes  ($minJs)"
 echo "Gzipped size: $(cat $minJs | gzip -c | wc -c) bytes"
 
+echo ""
+echo "Optimizing CSS..."
 css="css/styles.css"
 minCss="css/styles.min.css"
 
