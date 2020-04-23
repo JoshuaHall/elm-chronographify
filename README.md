@@ -1,5 +1,7 @@
 # Chronographify
 
+## Note: This is an updated fork
+
 Incredible time-keeping device written in Elm 0.17.
 
 [![](chrono.gif)](https://ohanhi.github.io/elm-chronographify)
